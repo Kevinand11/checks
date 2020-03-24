@@ -1,0 +1,9 @@
+<svg id="Checks_all" xmlns="http://www.w3.org/2000/svg" width="88" height="26" viewBox="0 0 88 26">
+  <g id="Checks_Name" transform="translate(24)">
+    <text id="checks" transform="translate(0 21)" fill="#00bdf7" font-size="20" font-family="Dosis-Bold, Dosis" font-weight="700"><tspan x="0" y="0">ch</tspan><tspan y="0" fill="#09ffc6">ecks</tspan></text>
+  </g>
+  <g id="Checks_logo" transform="translate(0 3)">
+    <path id="icons8_checkmark_6" d="M25.971,6.281,10.225,23.455,3.591,16.219l-1.31,1.429L9.571,25.6l.655.683.655-.683L27.281,7.71Z" transform="translate(-2.281 -6.281)" fill="#00bdf7"/>
+    <path id="icons8_checkmark_6-2" data-name="icons8_checkmark_6" d="M25.971,6.281,10.225,23.455,3.591,16.219l-1.31,1.429L9.571,25.6l.655.683.655-.683L27.281,7.71Z" transform="translate(2.719 -6.281)" fill="#09ffc6"/>
+  </g>
+</svg>
