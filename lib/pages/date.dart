@@ -1,5 +1,6 @@
 import 'package:checks/helpers/colors.dart';
 import 'package:checks/helpers/time.dart';
+import 'package:checks/helpers/toast.dart';
 import 'package:checks/models/entry.dart';
 import 'package:flutter/material.dart';
 
@@ -123,10 +124,7 @@ class _DatePageState extends State<DatePage> {
 		);
 	}
 
-	void _showToast(){
-		// TODO: show message with toast
-		print('Hold to edit entry');
-	}
+	void _showToast() => Toast.info('Hold to edit entry');
 
 	void _newEntry() => showDialog(context: context,builder: (BuildContext context) => _buildNewEntry(), barrierDismissible: false);
 

@@ -1,3 +1,5 @@
+import 'package:checks/helpers/shared_prefs.dart';
+
 class Time {
 	static const Map<int, String> days = {
 		1 : 'Monday',
@@ -24,6 +26,8 @@ class Time {
 	};
 	static bool isWeekend(DateTime date) => date.weekday == 6 || date.weekday == 7;
 
-	// TODO: replace hardcoded date with saved date in shared prefs
-	static bool isSavingsDay(DateTime date) => date.isAfter(DateTime(2020,3,11)) && date.isBefore(DateTime.now());
+	static Future<bool> isSavingsDay(DateTime date) async {
+		String savedDate = await SharedPrefs.getString(Keys.startDate);
+		return date.isBefore(DateTime.now()) && date.isAfter(savedDate != null ? DateTime.parse(savedDate) : DateTime(2000,1,1));
+	}
 }

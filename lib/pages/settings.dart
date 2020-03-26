@@ -1,3 +1,4 @@
+import 'package:checks/helpers/shared_prefs.dart';
 import 'package:checks/helpers/time.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +11,13 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
 	final String title = 'Settings';
-	DateTime startDate = DateTime.now();
+	DateTime startDate = DateTime(DateTime.now().year,1,1);
+
+	@override
+	void initState() {
+		super.initState();
+		_fetchStartDate();
+	}
 
 	@override
 	Widget build(BuildContext context) => Scaffold(
@@ -40,9 +47,9 @@ class _SettingsPageState extends State<SettingsPage> {
 											color: Colors.blue[500]
 										)),
 										onPressed: () async {
-											DateTime date = await getDatePicker(context);
+											DateTime date = await _getDatePicker(context);
 											setState(() => startDate = date);
-											// TODO: save this date to shared prefs
+											SharedPrefs.setString(Keys.startDate, date.toIso8601String());
 										}
 									)
 								],
@@ -54,10 +61,16 @@ class _SettingsPageState extends State<SettingsPage> {
 		)
 	);
 
-	Future<DateTime> getDatePicker(BuildContext context) async => showDatePicker(
+	Future<DateTime> _getDatePicker(BuildContext context) async => showDatePicker(
 		context: context,
-		initialDate: DateTime.now(),
+		initialDate: this.startDate,
 		firstDate: DateTime(2000,1,1),
 		lastDate: DateTime.now()
 	);
+
+	_fetchStartDate() async {
+		String date = await SharedPrefs.getString(Keys.startDate);
+		if(date != null) setState(() => this.startDate = DateTime.parse(date));
+	}
+
 }

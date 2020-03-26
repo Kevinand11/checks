@@ -6,6 +6,7 @@ void main() => runApp(App());
 class App extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) => MaterialApp(
+		debugShowCheckedModeBanner: false,
 		title: 'Checks',
 		theme: ThemeData(
 			primaryColor: Color(0xff008ab5),
