@@ -49,6 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
 										onPressed: () async {
 											DateTime date = await _getDatePicker(context);
 											setState(() => startDate = date);
+											// TODO: Implement Provider to update home page on navigating back
 											SharedPrefs.setString(Keys.startDate, date.toIso8601String());
 										}
 									)
