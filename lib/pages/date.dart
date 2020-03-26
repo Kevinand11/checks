@@ -115,7 +115,7 @@ class _DatePageState extends State<DatePage> {
 							],
 						),
 						SizedBox(height: 8),
-						if(entry.description?.isNotEmpty) Text(entry.description, style: TextStyle(
+						if(entry.description != null && entry.description.isNotEmpty) Text(entry.description, style: TextStyle(
 							fontSize: 15
 						))
 					],
@@ -129,7 +129,7 @@ class _DatePageState extends State<DatePage> {
 	void _newEntry() => showDialog(context: context,builder: (BuildContext context) => _buildNewEntry(), barrierDismissible: false);
 
 	void _editEntry(int index, Entry entry){
-		editEntry = entry;
+		setState(() => editEntry = entry);
 		enableEditControllers();
 		showDialog(context: context,builder:(BuildContext context) => _buildEditEntry(index),barrierDismissible: false);
 	}
@@ -160,7 +160,8 @@ class _DatePageState extends State<DatePage> {
 							newEntry.save();
 							setState(() => this.entries.add(newEntry.copy()));
 							Navigator.pop(context);
-							newEntry = Entry();
+							setState(() => newEntry = Entry());
+							this.enableNewControllers();
 						},
 					)
 				],
