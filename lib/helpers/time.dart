@@ -1,4 +1,7 @@
 import 'package:checks/helpers/shared_prefs.dart';
+import 'package:checks/providers/settings_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Time {
 	static const Map<int, String> days = {
@@ -26,8 +29,9 @@ class Time {
 	};
 	static bool isWeekend(DateTime date) => date.weekday == 6 || date.weekday == 7;
 
-	static Future<bool> isSavingsDay(DateTime date) async {
-		String savedDate = await SharedPrefs.getString(Keys.startDate);
-		return date.isBefore(DateTime.now()) && date.isAfter(savedDate != null ? DateTime.parse(savedDate) : DateTime(2000,1,1));
+	static bool isSavingsDay(BuildContext context, DateTime date) {
+		DateTime startDate = Provider.of<SettingsProvider>(context, listen: false).startDate;
+		// TODO: fix definition of todays's date in below logic
+		return date.isBefore(DateTime.now()) && date.isAfter(startDate);
 	}
 }

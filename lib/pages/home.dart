@@ -1,9 +1,10 @@
 import 'package:checks/helpers/colors.dart';
 import 'package:checks/helpers/routes.dart';
-import 'package:checks/helpers/shared_prefs.dart';
 import 'package:checks/helpers/time.dart';
 import 'package:checks/models/entry.dart';
+import 'package:checks/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,23 +16,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 	final String title = 'CHECKS';
 	CalendarController _calendarController = CalendarController();
 	List<DateTime> _dates = [];
-	DateTime startDate = DateTime(2000,1,1);
 
 	fetchDates() async {
 		List<DateTime> dates = await Entry.uniqueDates();
 		setState(() => this._dates = dates);
 	}
 
-	fetchStartDate() async {
-		String date = await SharedPrefs.getString(Keys.startDate);
-		if(date != null) setState(() => this.startDate = DateTime.parse(date));
-	}
-
 	@override
 	void initState(){
 		super.initState();
 		fetchDates();
-		fetchStartDate();
 	}
 
 	@override
@@ -58,7 +52,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 		_calendarController.dispose();
 	}
 
-	void _onDaySelected(DateTime day, List events) async => await Time.isSavingsDay(day) ? Navigator.pushNamed(context, Routes.Date, arguments: {'date': day}) : null;
+	void _onDaySelected(DateTime day, List events) => Time.isSavingsDay(context, day) ? Navigator.pushNamed(context, Routes.Date, arguments: {'date': day}) : null;
 
 	void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) => print('$format');
 
@@ -108,7 +102,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 		),
 	);
 
-	Widget _dayBuilder(BuildContext context, DateTime date, List<dynamic> events) => _isSavingsDay(date) ? Stack(
+	Widget _baseBuilder(BuildContext context, DateTime date, { List<Widget> children }) => Time.isSavingsDay(context, date) ? Stack(children: children) : Text('');
+
+	Widget _dayBuilder(BuildContext context, DateTime date, List<dynamic> events) => _baseBuilder(context, date,
 		children: [
 			Container(
 				alignment: Alignment.center,
@@ -125,9 +121,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 			),
 			_markerBuilder(date)
 		]
-	) : Text('');
+	);
 
-	Widget _selectedDayBuilder(BuildContext context, DateTime date, List<dynamic> events) => _isSavingsDay(date) ? Stack(
+	Widget _selectedDayBuilder(BuildContext context, DateTime date, List<dynamic> events) =>  _baseBuilder(context, date,
 		children: [
 			Container(
 				alignment: Alignment.center,
@@ -144,9 +140,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 			),
 			_markerBuilder(date)
 		]
-	) : Text('');
+	);
 
-	Widget _todayDayBuilder(BuildContext context, DateTime date, List<dynamic> events) => _isSavingsDay(date) ? Stack(
+	Widget _todayDayBuilder(BuildContext context, DateTime date, List<dynamic> events) =>  _baseBuilder(context, date,
 		children: [
 			Container(
 				alignment: Alignment.center,
@@ -163,7 +159,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 			),
 			_markerBuilder(date)
 		]
-	) : Text('');
+	);
 
 	Widget _markerBuilder(DateTime date) => Positioned(
 		right: 1,
@@ -179,6 +175,4 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 			)
 		)
 	);
-
-	bool _isSavingsDay(DateTime date) => date.isBefore(DateTime.now()) && date.isAfter(this.startDate);
 }
