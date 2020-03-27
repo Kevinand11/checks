@@ -126,12 +126,16 @@ class _DatePageState extends State<DatePage> {
 
 	void _showToast() => Toast.info('Hold to edit entry');
 
-	void _newEntry() => showDialog(context: context,builder: (BuildContext context) => _buildNewEntry(), barrierDismissible: false);
+	void _newEntry(){
+		setState(() => newEntry = Entry());
+		this.enableNewControllers();
+		showDialog(context: context, builder: (BuildContext context) => _buildNewEntry(), barrierDismissible: false);
+	}
 
 	void _editEntry(int index, Entry entry){
 		setState(() => editEntry = entry);
-		enableEditControllers();
-		showDialog(context: context,builder:(BuildContext context) => _buildEditEntry(index),barrierDismissible: false);
+		this.enableEditControllers();
+		showDialog(context: context, builder:(BuildContext context) => _buildEditEntry(index), barrierDismissible: false);
 	}
 
 	Widget _buildNewEntry() =>  AlertDialog(
@@ -157,11 +161,9 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							newEntry.save();
 							setState(() => this.entries.add(newEntry.copy()));
+							newEntry.save();
 							Navigator.pop(context);
-							setState(() => newEntry = Entry());
-							this.enableNewControllers();
 						},
 					)
 				],
@@ -192,8 +194,8 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							editEntry.save();
 							setState(() => this.entries[index] = editEntry.copy());
+							editEntry.save();
 							Navigator.pop(context);
 						},
 					)

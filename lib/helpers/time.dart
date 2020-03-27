@@ -30,7 +30,6 @@ class Time {
 
 	static bool isSavingsDay(BuildContext context, DateTime date) {
 		DateTime startDate = Provider.of<SettingsProvider>(context, listen: false).startDate;
-		// TODO: fix definition of todays's date in below logic
-		return date.isBefore(DateTime.now()) && date.isAfter(startDate);
+		return date.isBefore(DateTime.now().add(Duration(days: 1))) && date.isAfter(startDate);
 	}
 }
