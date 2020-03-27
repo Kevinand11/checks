@@ -2,9 +2,7 @@ import 'package:checks/helpers/colors.dart';
 import 'package:checks/helpers/routes.dart';
 import 'package:checks/helpers/time.dart';
 import 'package:checks/models/entry.dart';
-import 'package:checks/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class HomePage extends StatefulWidget {

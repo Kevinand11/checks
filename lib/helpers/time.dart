@@ -1,4 +1,3 @@
-import 'package:checks/helpers/shared_prefs.dart';
 import 'package:checks/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
