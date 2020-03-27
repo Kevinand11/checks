@@ -2,7 +2,10 @@ import 'package:checks/helpers/colors.dart';
 import 'package:checks/helpers/time.dart';
 import 'package:checks/helpers/toast.dart';
 import 'package:checks/models/entry.dart';
+import 'package:checks/providers/selected_entries_provider.dart';
+import 'package:checks/widgets/date_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DatePage extends StatefulWidget {
 	final DateTime date;
@@ -16,6 +19,7 @@ class _DatePageState extends State<DatePage> {
 	final DateTime date;
 	List<Entry> entries = [];
 	Entry editEntry, newEntry = Entry();
+	SelectedEntryProvider provider;
 	TextEditingController newTitleController, newPriceController, newDescriptionController, editTitleController, editPriceController, editDescriptionController;
 
 	_DatePageState({this.date});
@@ -30,6 +34,12 @@ class _DatePageState extends State<DatePage> {
 		super.initState();
 		this.fetchEntries(this.date);
 		this.enableNewControllers();
+	}
+
+	@override
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		this.provider = Provider.of<SelectedEntryProvider>(context);
 	}
 
 	void enableNewControllers(){
@@ -67,65 +77,58 @@ class _DatePageState extends State<DatePage> {
 
 	@override
 	Widget build(BuildContext context) => Scaffold(
-		appBar: AppBar(
-			centerTitle: false,
-			title: Text('${Time.days[date.weekday]}, ${Time.months[date.month]} ${date.day}'),
-			actions: <Widget>[
-				IconButton(
-					icon: Icon(Icons.add),
-					onPressed: _newEntry,
-				)
-			],
-		),
-		body: Padding(
-			padding: const EdgeInsets.symmetric(horizontal: 16),
-			child: entries.length > 0 ? ListView.builder(
-				itemCount: entries.length,
-				itemBuilder: _entryBuilder,
-			) : Container(
-				alignment: Alignment.center,
-				child: Text('No entries. Click the + button \nabove to add entries', textAlign: TextAlign.center,style: TextStyle(
-					fontSize: 18,
-					color: Colors.grey[600]
-				)),
-			),
+		appBar: provider.mode ? DateWidgets.selectedAppBar(provider) : DateWidgets.unSelectedAppBar(date, _newEntry),
+		body: entries.length > 0 ? ListView.builder(
+			itemCount: entries.length,
+			itemBuilder: _entryBuilder,
+		) : Container(
+			alignment: Alignment.center,
+			child: Text('No entries. Click the + button \nabove to add entries', textAlign: TextAlign.center,style: TextStyle(
+				fontSize: 18,
+				color: Colors.grey[600]
+			)),
 		),
 	);
 
 	Widget _entryBuilder(BuildContext context, int index){
 		Entry entry = entries[index];
 		return InkWell(
-			onTap: () => _editEntry(index, entry),
-			onLongPress: _showToast,
-			child: Padding(
-				padding: const EdgeInsets.symmetric(vertical:16),
-				child: Column(
-					crossAxisAlignment: CrossAxisAlignment.start,
-					children: <Widget>[
-						Row(
-							mainAxisAlignment: MainAxisAlignment.spaceBetween,
-							children: <Widget>[
-								Text(entry.title, style: TextStyle(
-									fontSize: 18
-								)),
-								Text('- ${entry.price}', style: TextStyle(
-									fontWeight: FontWeight.bold,
-									fontSize: 18,
-									color: MyColors.Error
-								))
-							],
-						),
-						SizedBox(height: 8),
-						if(entry.description != null && entry.description.isNotEmpty) Text(entry.description, style: TextStyle(
-							fontSize: 15
-						))
-					],
+			onTap: () => provider.mode ? _alterInSelected(entry) : _editEntry(index, entry),
+			onLongPress: () => provider.mode ? (){} : _alterInSelected(entry),
+			child: Container(
+				color: provider.has(entry) ? MyColors.Primary.withAlpha(200) : MyColors.White,
+				child: Padding(
+					padding: const EdgeInsets.all(16),
+					child: Column(
+						crossAxisAlignment: CrossAxisAlignment.start,
+						children: <Widget>[
+							Row(
+								mainAxisAlignment: MainAxisAlignment.spaceBetween,
+								children: <Widget>[
+									Text(entry.title, style: TextStyle(
+										fontSize: 18,
+										color: provider.has(entry) ? MyColors.White : MyColors.Black,
+									)),
+									Text('- ${entry.price}', style: TextStyle(
+										fontWeight: FontWeight.bold,
+										fontSize: 18,
+										color: MyColors.Error
+									))
+								],
+							),
+							SizedBox(height: 8),
+							if(entry.description != null && entry.description.isNotEmpty) Text(entry.description, style: TextStyle(
+								fontSize: 15,
+								color: provider.has(entry) ? MyColors.White : MyColors.Black,
+							))
+						],
+					),
 				),
 			),
 		);
 	}
 
-	void _showToast() => Toast.info('Hold to add entry to selected list');
+	void _alterInSelected(Entry entry) => provider.has(entry) ? provider.remove(entry) : provider.add(entry);
 
 	void _newEntry(){
 		setState(() => newEntry = Entry());
@@ -146,9 +149,9 @@ class _DatePageState extends State<DatePage> {
 		content: Column(
 			mainAxisSize: MainAxisSize.min,
 			children: <Widget>[
-				_buildTitleField(newTitleController),
-				_buildPriceField(newPriceController),
-				_buildDescriptionField(newDescriptionController),
+				DateWidgets.buildTitleField(newTitleController),
+				DateWidgets.buildPriceField(newPriceController),
+				DateWidgets.buildDescriptionField(newDescriptionController),
 			],
 		),
 		actions: <Widget>[
@@ -179,9 +182,9 @@ class _DatePageState extends State<DatePage> {
 		content: Column(
 			mainAxisSize: MainAxisSize.min,
 			children: <Widget>[
-				_buildTitleField(editTitleController),
-				_buildPriceField(editPriceController),
-				_buildDescriptionField(editDescriptionController),
+				DateWidgets.buildTitleField(editTitleController),
+				DateWidgets.buildPriceField(editPriceController),
+				DateWidgets.buildDescriptionField(editDescriptionController),
 			],
 		),
 		actions: <Widget>[
@@ -203,41 +206,6 @@ class _DatePageState extends State<DatePage> {
 				],
 			)
 		],
-	);
-
-	Widget _buildTitleField(TextEditingController controller) => TextField(
-		style: TextStyle(color: Colors.white),
-		keyboardType: TextInputType.text,
-		controller: controller,
-		decoration: InputDecoration(
-			border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-			hintText: 'Title',
-			hintStyle: TextStyle(color: Colors.grey[300]),
-		),
-	);
-
-	Widget _buildPriceField(TextEditingController controller) => TextField(
-		style: TextStyle(color: Colors.white),
-		keyboardType: TextInputType.number,
-		controller: controller,
-		decoration: InputDecoration(
-			border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-			hintText: 'Price',
-			hintStyle: TextStyle(color: Colors.grey[300]),
-		),
-	);
-
-	Widget _buildDescriptionField(TextEditingController controller) => TextField(
-		style: TextStyle(color: Colors.white),
-		controller: controller,
-		minLines: 2,
-		maxLines: 100,
-		keyboardType: TextInputType.text,
-		decoration: InputDecoration(
-			border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-			hintText: 'Description. Totally optional',
-			hintStyle: TextStyle(color: Colors.grey[300]),
-		),
 	);
 
 	void onNewTitleChanged() => this.newEntry.title = newTitleController.text;
