@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 			title: Text(this.title),
 			actions: <Widget>[
 				IconButton(
-					icon: Icon(Icons.more_vert),
+					icon: Icon(Icons.settings),
 					onPressed: () => Navigator.pushNamed(context, Routes.Settings))
 			],
 		),
