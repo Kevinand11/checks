@@ -13,7 +13,6 @@ class SettingsProvider with ChangeNotifier{
 		String date = await SharedPrefs.getString(Keys.startDate);
 		if(date != null) {
 			this._startDate = DateTime.parse(date);
-			notifyListeners();
 		}
 	}
 

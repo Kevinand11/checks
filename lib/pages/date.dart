@@ -95,8 +95,8 @@ class _DatePageState extends State<DatePage> {
 	Widget _entryBuilder(BuildContext context, int index){
 		Entry entry = entries[index];
 		return InkWell(
-			onTap: _showToast,
-			onLongPress: () => _editEntry(index, entry),
+			onTap: () => _editEntry(index, entry),
+			onLongPress: _showToast,
 			child: Padding(
 				padding: const EdgeInsets.symmetric(vertical:16),
 				child: Column(
@@ -108,9 +108,10 @@ class _DatePageState extends State<DatePage> {
 								Text(entry.title, style: TextStyle(
 									fontSize: 18
 								)),
-								Text('${entry.price}', style: TextStyle(
+								Text('- ${entry.price}', style: TextStyle(
 									fontWeight: FontWeight.bold,
-									fontSize: 18
+									fontSize: 18,
+									color: MyColors.Error
 								))
 							],
 						),
@@ -124,7 +125,7 @@ class _DatePageState extends State<DatePage> {
 		);
 	}
 
-	void _showToast() => Toast.info('Hold to edit entry');
+	void _showToast() => Toast.info('Hold to add entry to selected list');
 
 	void _newEntry(){
 		setState(() => newEntry = Entry());
