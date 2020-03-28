@@ -15,15 +15,22 @@ class DatePage extends StatefulWidget {
 
 class _DatePageState extends State<DatePage> {
 	final DateTime date;
+	List<Entry> entries = [];
 	Entry editEntry, newEntry = Entry();
 	EntryProvider provider;
 	TextEditingController newTitleController, newPriceController, newDescriptionController, editTitleController, editPriceController, editDescriptionController;
 
 	_DatePageState({this.date});
 
+	void fetchEntries(DateTime date) async {
+		List<Entry> entries = await Entry.allonDate(date);
+		setState(() => this.entries = entries);
+	}
+
 	@override
 	void initState() {
 		super.initState();
+		this.fetchEntries(this.date);
 		this.enableNewControllers();
 	}
 
@@ -31,7 +38,6 @@ class _DatePageState extends State<DatePage> {
 	void didChangeDependencies() {
 		super.didChangeDependencies();
 		this.provider = Provider.of<EntryProvider>(context);
-		provider.fetchEntries(date);
 	}
 
 	void enableNewControllers(){
@@ -69,9 +75,9 @@ class _DatePageState extends State<DatePage> {
 
 	@override
 	Widget build(BuildContext context) => Scaffold(
-		appBar: provider.selectMode ? DateWidgets.selectedAppBar(provider) : DateWidgets.unSelectedAppBar(date, _newEntry),
-		body: provider.entryCount > 0 ? ListView.builder(
-			itemCount: provider.entryCount,
+		appBar: provider.mode ? DateWidgets.selectedAppBar(provider) : DateWidgets.unSelectedAppBar(date, _newEntry),
+		body: entries.length > 0 ? ListView.builder(
+			itemCount: entries.length,
 			itemBuilder: _entryBuilder,
 		) : Container(
 			alignment: Alignment.center,
@@ -83,12 +89,12 @@ class _DatePageState extends State<DatePage> {
 	);
 
 	Widget _entryBuilder(BuildContext context, int index){
-		Entry entry = provider.entries[index];
+		Entry entry = entries[index];
 		return InkWell(
-			onTap: () => provider.selectMode ? provider.alterSelected(entry) : _editEntry(index, entry),
-			onLongPress: () => provider.selectMode ? (){} : provider.alterSelected(entry),
+			onTap: () => provider.mode ? _alterInSelected(entry) : _editEntry(index, entry),
+			onLongPress: () => provider.mode ? (){} : _alterInSelected(entry),
 			child: Container(
-				color: provider.hasSelected(entry) ? MyColors.Primary.withAlpha(200) : MyColors.White,
+				color: provider.has(entry) ? MyColors.Primary.withAlpha(200) : MyColors.White,
 				child: Padding(
 					padding: const EdgeInsets.all(16),
 					child: Column(
@@ -99,7 +105,7 @@ class _DatePageState extends State<DatePage> {
 								children: <Widget>[
 									Text(entry.title, style: TextStyle(
 										fontSize: 18,
-										color: provider.hasSelected(entry) ? MyColors.White : MyColors.Black,
+										color: provider.has(entry) ? MyColors.White : MyColors.Black,
 									)),
 									Text('- ${entry.price}', style: TextStyle(
 										fontWeight: FontWeight.bold,
@@ -111,7 +117,7 @@ class _DatePageState extends State<DatePage> {
 							SizedBox(height: 8),
 							if(entry.description != null && entry.description.isNotEmpty) Text(entry.description, style: TextStyle(
 								fontSize: 15,
-								color: provider.hasSelected(entry) ? MyColors.White : MyColors.Black,
+								color: provider.has(entry) ? MyColors.White : MyColors.Black,
 							))
 						],
 					),
@@ -119,6 +125,8 @@ class _DatePageState extends State<DatePage> {
 			),
 		);
 	}
+
+	void _alterInSelected(Entry entry) => provider.has(entry) ? provider.remove(entry) : provider.add(entry);
 
 	void _newEntry(){
 		setState(() => newEntry = Entry());
@@ -155,7 +163,7 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							provider.addEntry(newEntry.copy());
+							setState(() => this.entries.add(newEntry.copy()));
 							newEntry.save();
 							Navigator.pop(context);
 						},
@@ -188,7 +196,7 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							provider.editEntry(index, editEntry.copy());
+							setState(() => this.entries[index] = editEntry.copy());
 							editEntry.save();
 							Navigator.pop(context);
 						},

@@ -55,9 +55,9 @@ class DateWidgets{
 		centerTitle: false,
 		leading: IconButton(
 			icon: Icon(Icons.close),
-			onPressed: provider.clearSelected
+			onPressed: provider.clear
 		),
-		title: Text('${provider.selectedCount} selected'),
+		title: Text('${provider.count} selected'),
 		actions: <Widget>[
 			if(provider.hasOne) IconButton(
 				icon: Icon(Icons.edit),
