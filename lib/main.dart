@@ -1,4 +1,4 @@
-import 'package:checks/providers/selected_entries_provider.dart';
+import 'package:checks/providers/entries_provider.dart';
 import 'package:checks/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:checks/helpers/routes.dart' show Router, Routes;
@@ -11,7 +11,7 @@ class App extends StatelessWidget {
 	Widget build(BuildContext context) => MultiProvider(
 		providers: [
 			ChangeNotifierProvider(create: (BuildContext context) => SettingsProvider()),
-			ChangeNotifierProvider(create: (BuildContext context) => SelectedEntryProvider()),
+			ChangeNotifierProvider(create: (BuildContext context) => EntryProvider()),
 		],
 		child: MaterialApp(
 			debugShowCheckedModeBanner: false,

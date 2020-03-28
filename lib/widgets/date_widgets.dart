@@ -1,7 +1,7 @@
 import 'package:checks/helpers/time.dart';
 import 'package:checks/helpers/toast.dart';
 import 'package:checks/models/entry.dart';
-import 'package:checks/providers/selected_entries_provider.dart';
+import 'package:checks/providers/entries_provider.dart';
 import 'package:flutter/material.dart';
 
 class DateWidgets{
@@ -51,13 +51,13 @@ class DateWidgets{
 		],
 	);
 
-	static AppBar selectedAppBar(SelectedEntryProvider provider) => AppBar(
+	static AppBar selectedAppBar(EntryProvider provider) => AppBar(
 		centerTitle: false,
 		leading: IconButton(
 			icon: Icon(Icons.close),
-			onPressed: provider.clear
+			onPressed: provider.clearSelected
 		),
-		title: Text('${provider.count} selected'),
+		title: Text('${provider.selectedCount} selected'),
 		actions: <Widget>[
 			if(provider.hasOne) IconButton(
 				icon: Icon(Icons.edit),

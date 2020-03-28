@@ -1,8 +1,6 @@
 import 'package:checks/helpers/colors.dart';
-import 'package:checks/helpers/time.dart';
-import 'package:checks/helpers/toast.dart';
 import 'package:checks/models/entry.dart';
-import 'package:checks/providers/selected_entries_provider.dart';
+import 'package:checks/providers/entries_provider.dart';
 import 'package:checks/widgets/date_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,29 +15,23 @@ class DatePage extends StatefulWidget {
 
 class _DatePageState extends State<DatePage> {
 	final DateTime date;
-	List<Entry> entries = [];
 	Entry editEntry, newEntry = Entry();
-	SelectedEntryProvider provider;
+	EntryProvider provider;
 	TextEditingController newTitleController, newPriceController, newDescriptionController, editTitleController, editPriceController, editDescriptionController;
 
 	_DatePageState({this.date});
 
-	void fetchEntries(DateTime date) async {
-		List<Entry> entries = await Entry.allonDate(date);
-		setState(() => this.entries = entries);
-	}
-
 	@override
 	void initState() {
 		super.initState();
-		this.fetchEntries(this.date);
 		this.enableNewControllers();
 	}
 
 	@override
 	void didChangeDependencies() {
 		super.didChangeDependencies();
-		this.provider = Provider.of<SelectedEntryProvider>(context);
+		this.provider = Provider.of<EntryProvider>(context);
+		provider.fetchEntries(date);
 	}
 
 	void enableNewControllers(){
@@ -77,9 +69,9 @@ class _DatePageState extends State<DatePage> {
 
 	@override
 	Widget build(BuildContext context) => Scaffold(
-		appBar: provider.mode ? DateWidgets.selectedAppBar(provider) : DateWidgets.unSelectedAppBar(date, _newEntry),
-		body: entries.length > 0 ? ListView.builder(
-			itemCount: entries.length,
+		appBar: provider.selectMode ? DateWidgets.selectedAppBar(provider) : DateWidgets.unSelectedAppBar(date, _newEntry),
+		body: provider.entryCount > 0 ? ListView.builder(
+			itemCount: provider.entryCount,
 			itemBuilder: _entryBuilder,
 		) : Container(
 			alignment: Alignment.center,
@@ -91,12 +83,12 @@ class _DatePageState extends State<DatePage> {
 	);
 
 	Widget _entryBuilder(BuildContext context, int index){
-		Entry entry = entries[index];
+		Entry entry = provider.entries[index];
 		return InkWell(
-			onTap: () => provider.mode ? _alterInSelected(entry) : _editEntry(index, entry),
-			onLongPress: () => provider.mode ? (){} : _alterInSelected(entry),
+			onTap: () => provider.selectMode ? provider.alterSelected(entry) : _editEntry(index, entry),
+			onLongPress: () => provider.selectMode ? (){} : provider.alterSelected(entry),
 			child: Container(
-				color: provider.has(entry) ? MyColors.Primary.withAlpha(200) : MyColors.White,
+				color: provider.hasSelected(entry) ? MyColors.Primary.withAlpha(200) : MyColors.White,
 				child: Padding(
 					padding: const EdgeInsets.all(16),
 					child: Column(
@@ -107,7 +99,7 @@ class _DatePageState extends State<DatePage> {
 								children: <Widget>[
 									Text(entry.title, style: TextStyle(
 										fontSize: 18,
-										color: provider.has(entry) ? MyColors.White : MyColors.Black,
+										color: provider.hasSelected(entry) ? MyColors.White : MyColors.Black,
 									)),
 									Text('- ${entry.price}', style: TextStyle(
 										fontWeight: FontWeight.bold,
@@ -119,7 +111,7 @@ class _DatePageState extends State<DatePage> {
 							SizedBox(height: 8),
 							if(entry.description != null && entry.description.isNotEmpty) Text(entry.description, style: TextStyle(
 								fontSize: 15,
-								color: provider.has(entry) ? MyColors.White : MyColors.Black,
+								color: provider.hasSelected(entry) ? MyColors.White : MyColors.Black,
 							))
 						],
 					),
@@ -127,8 +119,6 @@ class _DatePageState extends State<DatePage> {
 			),
 		);
 	}
-
-	void _alterInSelected(Entry entry) => provider.has(entry) ? provider.remove(entry) : provider.add(entry);
 
 	void _newEntry(){
 		setState(() => newEntry = Entry());
@@ -165,7 +155,7 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							setState(() => this.entries.add(newEntry.copy()));
+							provider.addEntry(newEntry.copy());
 							newEntry.save();
 							Navigator.pop(context);
 						},
@@ -198,7 +188,7 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							setState(() => this.entries[index] = editEntry.copy());
+							provider.editEntry(index, editEntry.copy());
 							editEntry.save();
 							Navigator.pop(context);
 						},
