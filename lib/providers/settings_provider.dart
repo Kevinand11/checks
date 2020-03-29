@@ -19,8 +19,10 @@ class SettingsProvider with ChangeNotifier{
 	DateTime get startDate => _startDate;
 
 	setStartDate(DateTime date){
-		this._startDate = date;
-		notifyListeners();
-		SharedPrefs.setString(Keys.startDate, date.toIso8601String());
+		if(date != null){
+			this._startDate = date;
+			notifyListeners();
+			SharedPrefs.setString(Keys.startDate, date.toIso8601String());
+		}
 	}
 }

@@ -30,7 +30,7 @@ class EntryProvider with ChangeNotifier {
 	}
 
 	void clear(){
-		this._setMode(false);;
+		this._setMode(false);
 		this._selectedEntries = [];
 		notifyListeners();
 	}
