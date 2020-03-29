@@ -78,7 +78,6 @@ class _DatePageState extends State<DatePage> {
 		super.dispose();
 	}
 
-
 	@override
 	Widget build(BuildContext context) => Scaffold(
 		appBar: provider.selectMode ? DateWidgets.selectedAppBar(provider, onDelete: this.deleteEntries, onEdit: this.onEdit) : DateWidgets.unSelectedAppBar(date, _newEntry),
