@@ -23,15 +23,13 @@ class Entry extends Model{
 		);
 	}
 
-	Entry copy(){
-		return Entry(
-			id: this.id,
-			price: this.price,
-			title: this.title,
-			description: this.description,
-			date: this.date,
-		);
-	}
+	Entry copy() => Entry(
+		id: this.id,
+		price: this.price,
+		title: this.title,
+		description: this.description,
+		date: this.date,
+	);
 
 	fromMap(Map map){
 		this.id =  map['id'] ?? null;
@@ -73,7 +71,7 @@ class Entry extends Model{
 
 	static Future<List<DateTime>> uniqueDates() async {
 		List<Map<String,dynamic>> entries = await Model.getUnique(_tableName,['year','month','day']);
-		return entries.map((entry) => DateTime(entry['year'],entry['month'],entry['day'],13).toUtc()).toList();
+		return entries.map((entry) => DateTime(entry['year'],entry['month'],entry['day'])).toList();
 	}
 
 	static Future<List<Entry>> allonDate(DateTime date) async {
@@ -88,6 +86,7 @@ class Entry extends Model{
 
 	Future<void> save() async {
 		Map<String,dynamic> details = this.id != null ? await Model.update(_tableName, this.id, this.toMap()): await Model.create(_tableName, this.toMap());
+		this.fromMap(details);
 		return details != null ? true : false;
 	}
 

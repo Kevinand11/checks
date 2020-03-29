@@ -12,6 +12,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
 	final String title = 'Settings';
+	SettingsProvider settingsProvider;
 
 	@override
 	void initState() {
@@ -19,48 +20,51 @@ class _SettingsPageState extends State<SettingsPage> {
 	}
 
 	@override
-	Widget build(BuildContext context){
-		SettingsProvider settingsProvider = Provider.of<SettingsProvider>(context);
-		return Scaffold(
-			appBar: AppBar(
-				title: Text(this.title),
-			),
-			body: Padding(
-				padding: const EdgeInsets.all(16),
-				child: Column(
-					crossAxisAlignment: CrossAxisAlignment.start,
-					children: <Widget>[
-						Row(
-							mainAxisAlignment: MainAxisAlignment.spaceBetween,
-							children: <Widget>[
-								Text('Started saving on:', style: TextStyle(
-									fontSize: 18,
-									fontWeight: FontWeight.bold
-								)),
-								Row(
-									children: <Widget>[
-										Text('${Time.months[settingsProvider.startDate.month]} ${settingsProvider.startDate.day}', style: TextStyle(
-											fontSize: 15
-										)),
-										FlatButton(
-											child: Text('Change', style: TextStyle(
-												fontSize: 11,
-												color: Colors.blue[500]
-											)),
-											onPressed: () async {
-												DateTime date = await _getDatePicker(context);
-												settingsProvider.setStartDate(date);
-											}
-										)
-									],
-								)
-							],
-						),
-					],
-				),
-			)
-		);
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		this.settingsProvider = Provider.of<SettingsProvider>(context);
 	}
+
+	@override
+	Widget build(BuildContext context) => Scaffold(
+		appBar: AppBar(
+			title: Text(this.title),
+		),
+		body: Padding(
+			padding: const EdgeInsets.all(16),
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.start,
+				children: <Widget>[
+					Row(
+						mainAxisAlignment: MainAxisAlignment.spaceBetween,
+						children: <Widget>[
+							Text('Started saving on:', style: TextStyle(
+								fontSize: 18,
+								fontWeight: FontWeight.bold
+							)),
+							Row(
+								children: <Widget>[
+									Text('${Time.months[settingsProvider.startDate.month]} ${settingsProvider.startDate.day}', style: TextStyle(
+										fontSize: 15
+									)),
+									FlatButton(
+										child: Text('Change', style: TextStyle(
+											fontSize: 11,
+											color: Colors.blue[500]
+										)),
+										onPressed: () async {
+											DateTime date = await _getDatePicker(context);
+											settingsProvider.setStartDate(date);
+										}
+									)
+								],
+							)
+						],
+					),
+				],
+			),
+		)
+	);
 
 	Future<DateTime> _getDatePicker(BuildContext context) async => showDatePicker(
 		context: context,
