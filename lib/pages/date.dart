@@ -15,15 +15,22 @@ class DatePage extends StatefulWidget {
 
 class _DatePageState extends State<DatePage> {
 	final DateTime date;
-	Entry editEntry, newEntry = Entry();
+	Entry editEntry, newEntry;
+	List<Entry> _entries = [];
 	EntryProvider provider;
 	TextEditingController newTitleController, newPriceController, newDescriptionController, editTitleController, editPriceController, editDescriptionController;
 
 	_DatePageState({this.date});
 
+	void fetchEntries(DateTime date) async {
+		List<Entry> entries = await Entry.allonDate(date);
+		setState(() => this._entries = entries);
+	}
+
 	@override
 	void initState() {
 		super.initState();
+		this.fetchEntries(this.date);
 		this.enableNewControllers();
 	}
 
@@ -31,7 +38,6 @@ class _DatePageState extends State<DatePage> {
 	void didChangeDependencies() {
 		super.didChangeDependencies();
 		this.provider = Provider.of<EntryProvider>(context);
-		this.provider.fetchEntries(this.date);
 	}
 
 	void enableNewControllers(){
@@ -61,6 +67,8 @@ class _DatePageState extends State<DatePage> {
 		editDescriptionController?.dispose();
 	}
 
+	void deleteEntries(List<int> ids) => setState(() => this._entries.removeWhere((Entry entry) => ids.contains(entry.id)));
+
 	@override
 	void dispose() {
 		this.disposeControllers();
@@ -69,9 +77,9 @@ class _DatePageState extends State<DatePage> {
 
 	@override
 	Widget build(BuildContext context) => Scaffold(
-		appBar: provider.selectMode ? DateWidgets.selectedAppBar(provider) : DateWidgets.unSelectedAppBar(date, _newEntry),
-		body: provider.entries.length > 0 ? ListView.builder(
-			itemCount: provider.count,
+		appBar: provider.selectMode ? DateWidgets.selectedAppBar(provider, this.deleteEntries) : DateWidgets.unSelectedAppBar(date, _newEntry),
+		body: this._entries.length > 0 ? ListView.builder(
+			itemCount: this._entries.length,
 			itemBuilder: _entryBuilder,
 		) : Container(
 			alignment: Alignment.center,
@@ -83,7 +91,7 @@ class _DatePageState extends State<DatePage> {
 	);
 
 	Widget _entryBuilder(BuildContext context, int index){
-		Entry entry = provider.entries[index];
+		Entry entry = this._entries[index];
 		return InkWell(
 			onTap: () => provider.selectMode ? provider.alterInSelected(entry) : _editEntry(index, entry),
 			onLongPress: () => provider.selectMode ? (){} : provider.alterInSelected(entry),
@@ -121,7 +129,7 @@ class _DatePageState extends State<DatePage> {
 	}
 
 	void _newEntry(){
-		setState(() => newEntry = Entry());
+		setState(() => newEntry = Entry(date: this.date));
 		this.enableNewControllers();
 		showDialog(context: context, builder: (BuildContext context) => _buildNewEntry(), barrierDismissible: false);
 	}
@@ -155,7 +163,8 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							provider.addEntry(newEntry.copy());
+							newEntry.save();
+							setState(() => this._entries.add(newEntry.copy()));
 							Navigator.pop(context);
 						},
 					)
@@ -187,7 +196,8 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							provider.editEntry(index, editEntry.copy());
+							editEntry.save();
+							setState(() => this._entries[index] = editEntry.copy());
 							Navigator.pop(context);
 						},
 					)

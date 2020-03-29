@@ -3,40 +3,17 @@ import 'package:checks/models/entry.dart';
 import 'package:flutter/material.dart';
 
 class EntryProvider with ChangeNotifier {
-	List<Entry> _entries = [], _selectedEntries = [];
+	List<Entry> _selectedEntries = [];
 	bool _selectMode = false;
-
-	void fetchEntries(DateTime date) async {
-		this._entries = await Entry.allonDate(date);
-		notifyListeners();
-	}
-
-	List<Entry> get entries => this._entries;
 
 	List<Entry> get selectedEntries => this._selectedEntries;
 
 	bool get selectMode => this._selectMode;
 
-	int get count => this._entries.length;
-
 	int get selectedCount => this._selectedEntries.length;
 
 	bool get hasOneSelected => this._selectedEntries.length == 1;
 
-	// TODO: new entries just flash and are deleted
-	void addEntry(Entry entry) async {
-		await entry.save();
-		this._entries.add(entry);
-		notifyListeners();
-	}
-
-	void editEntry(int index, Entry entry){
-		entry.save();
-		this._entries[index] = entry;
-		notifyListeners();
-	}
-
-	// TODO: the list doesnt recognize the entry in it
 	bool hasSelected(Entry entry) => this._selectedEntries.contains(entry);
 
 	void _setSelectMode(bool mode) => this._selectMode = mode;
