@@ -51,7 +51,7 @@ class DateWidgets{
 		],
 	);
 
-	static AppBar selectedAppBar(EntryProvider provider, Function deleteEntries) => AppBar(
+	static AppBar selectedAppBar(EntryProvider provider, {Function onDelete, Function onEdit}) => AppBar(
 		centerTitle: false,
 		leading: IconButton(
 			icon: Icon(Icons.close),
@@ -61,14 +61,17 @@ class DateWidgets{
 		actions: <Widget>[
 			if(provider.hasOneSelected) IconButton(
 				icon: Icon(Icons.edit),
-				onPressed: (){},
+				onPressed: (){
+					onEdit(provider.selectedEntries[0]);
+					provider.clearSelected();
+				},
 			),
 			IconButton(
 				icon: Icon(Icons.delete),
 				onPressed: () async {
 					List<int> ids = provider.selectedEntries.map((Entry entry) => entry.id).toList();
 					await Entry.deleteMany(ids);
-					deleteEntries(ids);
+					onDelete(ids);
 					provider.clearSelected();
 					Toast.info('${ids.length} ${ids.length > 1 ? 'entries' : 'entry'} deleted successfully!');
 				},

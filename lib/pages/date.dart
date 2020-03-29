@@ -69,15 +69,18 @@ class _DatePageState extends State<DatePage> {
 
 	void deleteEntries(List<int> ids) => setState(() => this._entries.removeWhere((Entry entry) => ids.contains(entry.id)));
 
+	void onEdit(Entry entry) => _editEntry(this._entries.indexOf(entry), entry);
+
 	@override
 	void dispose() {
 		this.disposeControllers();
 		super.dispose();
 	}
 
+
 	@override
 	Widget build(BuildContext context) => Scaffold(
-		appBar: provider.selectMode ? DateWidgets.selectedAppBar(provider, this.deleteEntries) : DateWidgets.unSelectedAppBar(date, _newEntry),
+		appBar: provider.selectMode ? DateWidgets.selectedAppBar(provider, onDelete: this.deleteEntries, onEdit: this.onEdit) : DateWidgets.unSelectedAppBar(date, _newEntry),
 		body: this._entries.length > 0 ? ListView.builder(
 			itemCount: this._entries.length,
 			itemBuilder: _entryBuilder,
@@ -94,7 +97,7 @@ class _DatePageState extends State<DatePage> {
 		Entry entry = this._entries[index];
 		return InkWell(
 			onTap: () => provider.selectMode ? provider.alterInSelected(entry) : _editEntry(index, entry),
-			onLongPress: () => provider.selectMode ? (){} : provider.alterInSelected(entry),
+			onLongPress: () => provider.selectMode ? (){ provider.clearSelected();  _editEntry(index, entry); }() : provider.alterInSelected(entry),
 			child: Container(
 				color: provider.hasSelected(entry) ? MyColors.Primary.withAlpha(200) : MyColors.White,
 				child: Padding(
