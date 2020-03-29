@@ -1,4 +1,5 @@
 import 'package:checks/helpers/colors.dart';
+import 'package:checks/helpers/toast.dart';
 import 'package:checks/models/entry.dart';
 import 'package:checks/providers/entries_provider.dart';
 import 'package:checks/widgets/date_widgets.dart';
@@ -166,9 +167,14 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							newEntry.save();
-							setState(() => this._entries.add(newEntry.copy()));
-							Navigator.pop(context);
+							if(newEntry.title != null && newEntry.title.trim() != "" && newEntry.price != null && newEntry.price != 0){
+								newEntry.save();
+								setState(() => this._entries.add(newEntry.copy()));
+								Navigator.pop(context);
+							}
+							else{
+								Toast.error("Please ensure to provide title and price");
+							}
 						},
 					)
 				],
@@ -199,9 +205,14 @@ class _DatePageState extends State<DatePage> {
 					FlatButton(
 						child: Text('Save', style: TextStyle(color: Colors.white)),
 						onPressed: (){
-							editEntry.save();
-							setState(() => this._entries[index] = editEntry.copy());
-							Navigator.pop(context);
+							if(editEntry.title != null && editEntry.title.trim() != "" && editEntry.price != null && editEntry.price != 0){
+								editEntry.save();
+								setState(() => this._entries[index] = editEntry.copy());
+								Navigator.pop(context);
+							}
+							else{
+								Toast.error("Please ensure to provide title and price");
+							}
 						},
 					)
 				],
