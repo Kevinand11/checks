@@ -1,8 +1,6 @@
 import 'package:checks/helpers/colors.dart';
 import 'package:checks/helpers/time.dart';
-import 'package:checks/providers/dates_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class HomeWidgets{
@@ -39,7 +37,7 @@ class HomeWidgets{
 
 	static Widget _baseBuilder(BuildContext context, DateTime date, { List<Widget> children }) => Time.isSavingsDay(context, date) ? Stack(children: children) : Text('');
 
-	static Widget dayBuilder(BuildContext context, DateTime date, List<dynamic> events) => _baseBuilder(context, date,
+	static Widget dayBuilder(BuildContext context, DateTime date, List<DateTime> uniques) => _baseBuilder(context, date,
 		children: [
 			Container(
 				alignment: Alignment.center,
@@ -54,11 +52,11 @@ class HomeWidgets{
 					color: Time.isWeekend(date) ? MyColors.Accent : Colors.black
 				)),
 			),
-			_markerBuilder(context, date)
+			_markerBuilder(date, uniques)
 		]
 	);
 
-	static Widget selectedDayBuilder(BuildContext context, DateTime date, List<dynamic> events) =>  _baseBuilder(context, date,
+	static Widget selectedDayBuilder(BuildContext context, DateTime date, List<DateTime> uniques) =>  _baseBuilder(context, date,
 		children: [
 			Container(
 				alignment: Alignment.center,
@@ -73,11 +71,11 @@ class HomeWidgets{
 					color: Colors.white
 				)),
 			),
-			_markerBuilder(context, date)
+			_markerBuilder(date, uniques)
 		]
 	);
 
-	static Widget todayDayBuilder(BuildContext context, DateTime date, List<dynamic> events) =>  _baseBuilder(context, date,
+	static Widget todayDayBuilder(BuildContext context, DateTime date, List<DateTime> uniques) =>  _baseBuilder(context, date,
 		children: [
 			Container(
 				alignment: Alignment.center,
@@ -92,11 +90,11 @@ class HomeWidgets{
 					color: Colors.white
 				)),
 			),
-			_markerBuilder(context, date)
+			_markerBuilder(date, uniques)
 		]
 	);
 
-	static Widget _markerBuilder(BuildContext context,DateTime date) => Positioned(
+	static Widget _markerBuilder(DateTime date, List<DateTime> uniques) => Positioned(
 		right: 1,
 		bottom: 1,
 		child: AnimatedContainer(
@@ -105,9 +103,9 @@ class HomeWidgets{
 			width: 20,
 			height: 20,
 			child: Icon(
-				Provider.of<DateProvider>(context).hasDate(date) ? Icons.check : Icons.close,
-				color: Provider.of<DateProvider>(context).hasDate(date) ? Colors.lightGreen[200] :  Colors.red[200]
-			)
+				uniques.contains(DateTime(date.year,date.month,date.day)) ? Icons.check : Icons.close,
+				color: uniques.contains(DateTime(date.year,date.month,date.day)) ? Colors.lightGreen[200] :  Colors.red[200]
+			),
 		)
 	);
 }

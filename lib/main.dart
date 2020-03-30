@@ -1,4 +1,3 @@
-import 'package:checks/providers/dates_provider.dart';
 import 'package:checks/providers/entries_provider.dart';
 import 'package:checks/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,6 @@ class App extends StatelessWidget {
 		providers: [
 			ChangeNotifierProvider(create: (BuildContext context) => SettingsProvider()),
 			ChangeNotifierProvider(create: (BuildContext context) => EntryProvider()),
-			ChangeNotifierProvider(create: (BuildContext context) => DateProvider()),
 		],
 		child: MaterialApp(
 			debugShowCheckedModeBanner: false,

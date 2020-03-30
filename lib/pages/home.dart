@@ -1,5 +1,6 @@
 import 'package:checks/helpers/routes.dart';
 import 'package:checks/helpers/time.dart';
+import 'package:checks/models/entry.dart';
 import 'package:checks/widgets/home_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -12,6 +13,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 	final String title = 'CHECKS';
 	CalendarController _calendarController = CalendarController();
+	List<DateTime> _uniqueDates = [];
+
+	@override
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		this._fetchDates();
+	}
+
+	_fetchDates() async {
+		List<DateTime> dates = await Entry.uniqueDates();
+		setState(() => this._uniqueDates = dates);
+	}
 
 	@override
 	Widget build(BuildContext context) => Scaffold(
@@ -48,9 +61,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 		headerStyle: HomeWidgets.buildHeadersStyle(),
 		daysOfWeekStyle: HomeWidgets.buildDaysOfWeekStyle(),
 		builders: CalendarBuilders(
-			dayBuilder: HomeWidgets.dayBuilder,
-			selectedDayBuilder: HomeWidgets.selectedDayBuilder,
-			todayDayBuilder: HomeWidgets.todayDayBuilder
+			dayBuilder: (BuildContext context, DateTime date, List<dynamic> events) => HomeWidgets.dayBuilder(context, date, _uniqueDates),
+			selectedDayBuilder: (BuildContext context, DateTime date, List<dynamic> events) => HomeWidgets.selectedDayBuilder(context, date, _uniqueDates),
+			todayDayBuilder: (BuildContext context, DateTime date, List<dynamic> events) => HomeWidgets.todayDayBuilder(context, date, _uniqueDates)
 		)
 	);
 }
