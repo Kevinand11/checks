@@ -29,10 +29,10 @@ class Database {
 	}
 
 	_onCreate(sql.Database db, int version) async {
-		await db.execute("CREATE TABLE entries(id INTEGER PRIMARY KEY AUTOINCREMENT, year INTEGER, month integer, day integer, price INTEGER, title TEXT, description TEXT)");
+		await db.execute("CREATE TABLE IF NOT EXISTS entries(id INTEGER PRIMARY KEY AUTOINCREMENT, year INTEGER, month integer, day integer, price INTEGER, title TEXT, description TEXT)");
 	}
 
 	_onUpgrade(sql.Database db, int oldVersion, int newVersion) async {
-		await db.execute("CREATE TABLE entries(id INTEGER PRIMARY KEY AUTOINCREMENT, year INTEGER, month integer, day integer, price INTEGER, title TEXT, description TEXT)");
+		await db.execute("CREATE TABLE IF NOT EXISTS entries(id INTEGER PRIMARY KEY AUTOINCREMENT, year INTEGER, month integer, day integer, price INTEGER, title TEXT, description TEXT)");
 	}
 }
